@@ -24,27 +24,14 @@ const signToken = (id) => {
     expiresIn: process.env.JWT_E,
   });
 };
-exports.signup = async (req, res) => {
-  try {
-    const newUser = await User.create(req.body);
-    const url = `${req.protocol}://${req.get("host")}/me`;
-    console.log(url);
-    await new Email(newUser, url).sendWelcome();
-    createSendToken(newUser, 200, res);
-  } catch (err) {
-    console.log(err);
-    res.status(404).send({
-      status: "failed",
-      msg: err,
-    });
-  }
-};
 exports.login = async (req, res, next) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
+  const { RollNumber, password } = req.body;
+  if (!RollNumber || !password) {
     return next(new AppError("please provide email and password", 400));
   }
-  const user = await User.findOne({ email: email }).select("+password");
+  const user = await User.findOne({ RollNumber: RollNumber }).select(
+    "+password"
+  );
   const correct = await bcrypt.compare(password, user.password);
   if (!user || !correct) {
     return next(new AppError("incorrect email or password", 401));
@@ -60,10 +47,12 @@ exports.protect = catchAsync(async (req, res, next) => {
     token = req.headers.authorization.split(" ")[1];
   } else if (req.cookies.jwt) {
     token = req.cookies.jwt;
+    console.log("cookie");
   }
-  console.log(token);
   if (!token) {
-    return next(new AppError("you are not logged in! please login", 401));
+    res.status(401).send({
+      msg: "you are not logged in! please login",
+    });
   }
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_S);
   const currentUser = await User.findById(decoded.id);
@@ -71,9 +60,6 @@ exports.protect = catchAsync(async (req, res, next) => {
     return next(
       new Error("The user belonging to this token no longer exist", 401)
     );
-  }
-  if (currentUser.changedPasswordAfter(decoded.iat)) {
-    return next(new AppError("user recently changed the password", 401));
   }
   req.user = currentUser;
   res.locals.user = currentUser;
@@ -88,14 +74,15 @@ exports.isLoggedIn = async (req, res, next) => {
       );
       const currentUser = await User.findById(decoded.id);
       if (!currentUser) {
-        return next();
-      }
-      if (currentUser.changedPasswordAfter(decoded.iat)) {
-        return next();
+        res.status(401).send({
+          msg: "you are not logged in! please login",
+        });
       }
       res.locals.user = currentUser;
     } catch (error) {
-      return next();
+      res.status(401).send({
+        msg: "you are not logged in! please login",
+      });
     }
   }
   return next();
