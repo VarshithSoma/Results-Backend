@@ -2,10 +2,10 @@ const XLSX = require("xlsx");
 const workbook = XLSX.readFile(
   "../data/B.Tech-II-I-Regular-A22-2022-Batch (1).numbers"
 );
-var sheet_name_list = workbook.SheetNames;
-console.log(sheet_name_list + "Line 6"); // getting as Sheet1
+const allSheets = workbook.SheetNames;
+const fs = require("fs");
 
-sheet_name_list.forEach(function (y) {
+allSheets.forEach(function (y) {
   var worksheet = workbook.Sheets[y];
   //getting the complete sheet
   //   console.log(worksheet);
@@ -37,5 +37,14 @@ sheet_name_list.forEach(function (y) {
   //drop those first two rows which are empty
   data.shift();
   data.shift();
-  console.log(data);
+  //   console.log(data);
+  const str = JSON.stringify(data); // Convert to JSON string with pretty formatting
+
+  fs.writeFile("./data.json", str, (err) => {
+    if (err) {
+      console.error(err);
+    } else {
+      console.log("File written successfully");
+    }
+  });
 });
