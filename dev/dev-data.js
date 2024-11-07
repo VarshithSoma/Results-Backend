@@ -2,6 +2,7 @@ const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const Student = require("../Models/studentModel"); // Ensure this path is correct for your project
 const fs = require("fs");
+const bcrypt = require("bcrypt");
 
 // Load environment variables from .env file
 dotenv.config({ path: "./config.env" });
@@ -57,21 +58,18 @@ const importData = async () => {
 
       if (student) {
         //  existing student
-        student.name = name || student.name;
-        const existingSemester = student.semesters.find(
-          (sem) => sem.semesterNumber === semesters[0].semesterNumber
-        );
         student.semesters.push(semesters[0]);
 
         // Save the updated student record
         await student.save();
-        console.log(`Student data updated successfully for ${name}`);
+        // console.log(`Student data updated successfully for ${name}`);
       } else {
         // Create new student record
         const newStudent = await Student.create({
           RollNumber: rollNumber,
           name,
           semesters,
+          password: await bcrypt.hash(rollNumber, 12),
         });
         // console.log(`New student record created for ${name}`);
       }

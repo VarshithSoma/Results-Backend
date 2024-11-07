@@ -1,7 +1,10 @@
 const XLSX = require("xlsx");
 const workbook = XLSX.readFile(
-  "../data/B.Tech-II-I-Regular-A22-2022-Batch (1).numbers"
+  "../data/B.Tech-I-I-Regular-2022-Batch(raw).numbers"
 );
+// const workbook = XLSX.readFile(
+//   "../data/B.Tech-II-I-Regular-A22-2022-Batch (1).numbers"
+// );
 const allSheets = workbook.SheetNames;
 const fs = require("fs");
 
