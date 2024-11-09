@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const express = require("express");
 const { catchAsync } = require("../utils/catchAsync");
+const AppError = require("../utils/appError");
 const createSendToken = (user, statusCode, res) => {
   const token = signToken(user._id);
   const cookieOptions = {
@@ -26,6 +27,7 @@ const signToken = (id) => {
 };
 exports.login = async (req, res, next) => {
   const { RollNumber, password } = req.body;
+  console.log(req.body);
   if (!RollNumber || !password) {
     return next(new AppError("please provide email and password", 400));
   }
