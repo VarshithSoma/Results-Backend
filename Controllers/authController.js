@@ -26,20 +26,27 @@ const signToken = (id) => {
   });
 };
 exports.login = async (req, res, next) => {
-  const { RollNumber, password } = req.body;
-  console.log(req.body);
+  let { RollNumber, password } = req.body;
+  RollNumber = RollNumber.toUpperCase();
+  password = password.toUpperCase();
+  console.log(RollNumber);
+  // Check if RollNumber and password are provided
   if (!RollNumber || !password) {
-    return next(new AppError("please provide email and password", 400));
+    return next(new AppError("Please provide RollNumber and password", 400));
   }
-  const user = await User.findOne({ RollNumber: RollNumber }).select(
-    "+password"
-  );
-  const correct = await bcrypt.compare(password, user.password);
-  if (!user || !correct) {
-    return next(new AppError("incorrect email or password", 401));
+
+  // Find user by RollNumber and include the password field
+  const user = await User.findOne({ RollNumber }).select("+password");
+
+  // Check if user exists and password is correct
+  if (!user || !(await bcrypt.compare(password, user.password))) {
+    return next(new AppError("Incorrect RollNumber or password", 401));
   }
+
+  // If successful, send token
   createSendToken(user, 200, res);
 };
+
 exports.protect = catchAsync(async (req, res, next) => {
   let token;
   if (
