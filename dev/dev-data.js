@@ -6,7 +6,8 @@ const bcrypt = require("bcrypt");
 
 // Load environment variables from .env file
 dotenv.config({ path: "./config.env" });
-const DB = "mongodb://127.0.0.1:27017/results";
+const DB =
+  "mongodb+srv://varshithkumarsoma:NfCZL26KuQZmj03S@cluster0.kolgg6r.mongodb.net/results";
 
 // Connect to MongoDB
 mongoose
